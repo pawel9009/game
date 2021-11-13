@@ -3,6 +3,7 @@ import pygame
 
 
 def import_folder(path):
+    """Import images from folder"""
     surface_list = []
 
     for _, __, img_file in walk(path):
@@ -14,14 +15,15 @@ def import_folder(path):
 
 
 def change_dimension(map, num):
-    new = []
+    """Change dimension on map"""
+    new_level = []
     index = num // 100
     print(index)
-    for x in range(len(map[0])):
-        new.append('')
-    for dim in map:
-        for i, row in enumerate(dim):
-            new[i] = new[i] + row[index]
-    for a in new:
+    for dimension in range(len(map[0])):
+        new_level.append('')
+    for dimmendion in map:
+        for i, row in enumerate(dimmendion):
+            new_level[i] = new_level[i] + row[index]
+    for a in new_level:
         print(a)
-    return new
+    return new_level

@@ -8,19 +8,22 @@ from particles import ParticleEffect
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-
         self.lv = 0
         self.current_level = level_data[0]
         self.player_x = 0
         self.player_y = 0
+        self.tile_color = (255,0,0)
         self.player = pygame.sprite.GroupSingle(None)
-        self.setup_level(self.current_level)
+        self.setup_level(self.current_level, self.tile_color)
         self.world_shift_x = 0
         self.world_shift_y = 0
-
+        self.world_speed = 8
         # dust
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
+
+    def tile_color_update(self,color):
+        self.tile_color = color
 
     def create_jump_praticles(self, pos):
         if self.player.sprite.facing_right:
@@ -32,6 +35,7 @@ class Level:
         self.dust_sprite.add(jump_particle_sprite)
 
     def get_player_on_ground(self):
+        """Check if player touch the ground"""
         if self.player.sprite.on_ground:
             self.player_on_ground = True
         else:
@@ -46,9 +50,9 @@ class Level:
             fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')
             self.dust_sprite.add(fall_dust_particle)
 
-    def setup_level(self, layout):
+    def setup_level(self, layout, tile_color):
+        """Create lvl"""
         self.tiles = pygame.sprite.Group()
-
         player_pos = (win_width // 2, win_height // 2)
 
         for index_row, row in enumerate(layout):
@@ -56,38 +60,42 @@ class Level:
                 x = tile_size * index_col
                 y = tile_size * index_row
                 if cell == 'X':
-                    tile = Tile((x, y), tile_size)
-                    tile.update(self.player_x + 512, self.player_y)
+                    tile = Tile((x, y), tile_size, tile_color)
+                    tile.update(self.player_x + 512, self.player_y, self.tile_color)
                     self.tiles.add(tile)
                 player = Player((player_pos), self.display_surface, self.create_jump_praticles)
                 self.player.add(player)
 
+
+
     def scroll_x(self):
+        """Camera move x"""
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.dir.x
 
         if player_x < win_width / 2 and direction_x < 0:
-            self.world_shift_x = 8
-            self.player_x += 8
+            self.world_shift_x = self.world_speed
+            self.player_x += self.world_speed
             player.speed = 0
         elif player_x > win_width - (win_width / 2) and direction_x > 0:
-            self.world_shift_x = -8
+            self.world_shift_x = -self.world_speed
+            self.player_x -= self.world_speed
             player.speed = 0
-            self.player_x -= 8
         else:
             self.world_shift_x = 0
-            player.speed = 8
+            player.speed = self.world_speed
 
     def scroll_y(self):
+        """Camera move y"""
         player = self.player.sprite
         player_y = player.rect.centery
         direction_y = player.dir.y
 
         if player_y < win_height / 2 and direction_y < 0:
-            self.world_shift_y = 8
-            player.rect.y += 8
-            self.player_y += 8
+            self.world_shift_y = self.world_speed
+            player.rect.y += self.world_speed
+            self.player_y += self.world_speed
         elif player_y > win_height - (win_height / 4) and direction_y >= 0:
 
             self.world_shift_y = player.jump_speed
@@ -97,13 +105,14 @@ class Level:
             self.world_shift_y = 0
 
     def save(self):
+        """ 'Checkpoint' """
         if self.player_y < -700:
-            self.player_y = -250
-            self.player_x = -34
+            self.player_y = -150
+            self.player_x = -45
             self.setup_level(self.current_level)
 
     def input(self):
-
+        """Player input"""
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
@@ -116,6 +125,7 @@ class Level:
             self.dir.x = 0
 
     def test_colision(self):
+        """Check how many colisions"""
         hit_list = []
         player = self.player.sprite
         for tile in self.tiles.sprites():
@@ -124,6 +134,7 @@ class Level:
         return hit_list
 
     def move(self):
+        """Move and text colision with tiles"""
         player = self.player.sprite
         player.rect.x += player.dir.x * player.speed
         hit_list = self.test_colision()
@@ -158,7 +169,7 @@ class Level:
         self.get_player_on_ground()
 
         # -----------------------------------
-        player = self.player.sprite
+
 
         player.apply_gravity()
 
@@ -166,11 +177,11 @@ class Level:
 
         for tile in hit_list:
             if player.dir.y > 0:
-
                 player.rect.bottom = tile.rect.top
                 player.dir.y = 0
                 player.on_ground = True
             elif player.dir.y < 0:
+                player.dir.y = 0
                 player.rect.top = tile.rect.bottom
                 player.on_ceiling = True
 
@@ -180,11 +191,14 @@ class Level:
             player.on_ceiling = False
 
     def run(self):
+        """Run all functions"""
+        print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)
         # level
-        self.tiles.update(self.world_shift_x, self.world_shift_y)
+        self.tiles.update(self.world_shift_x, self.world_shift_y, self.tile_color)
+
         self.tiles.draw(self.display_surface)
 
         # player
