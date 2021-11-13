@@ -1,6 +1,6 @@
 tile_size = 128
-win_width = 16 * 64
-win_height = 600
+win_width = 25 * 64
+win_height = 900
 
 level_map = [
     ['                          ',

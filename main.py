@@ -14,8 +14,11 @@ level = Level(level_map, win)
 
 run = True
 
-change_color = False
+change_color = True
 zmienna = 0
+
+current_color= 0
+counting_up = True
 while run:
 
     clock.tick(60)
@@ -32,15 +35,30 @@ while run:
             elif event.key == pygame.K_e:
                 liczba = level.player_x * -1
                 map = change_dimension(level_map, liczba)
-                change_color=True
+
                 level.setup_level(map, (255,0,0))
                 level.tile_color_update((0,0,0))
 
     if change_color:
-        level.tile_color_update((0,zmienna,0))
-        if zmienna<255:
-            zmienna+=1
-
+        if counting_up:
+            if zmienna<255:
+                zmienna+=1
+            else:
+                counting_up =False
+        else:
+            if zmienna>0:
+                zmienna-=1
+            else:
+                counting_up=True
+                current_color+=1
+                if current_color==3:
+                    current_color=0
+        if current_color == 0:
+            level.tile_color_update((zmienna, 0, 0))
+        elif current_color == 1:
+            level.tile_color_update((0, zmienna, 0))
+        elif current_color == 2:
+            level.tile_color_update((0, 0, zmienna))
 
 
     win.fill('black')

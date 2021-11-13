@@ -8,6 +8,7 @@ from particles import ParticleEffect
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
+        self.checkpoint = (-110,-45)
         self.lv = 0
         self.current_level = level_data[0]
         self.player_x = 0
@@ -106,10 +107,9 @@ class Level:
 
     def save(self):
         """ 'Checkpoint' """
-        if self.player_y < -700:
-            self.player_y = -150
-            self.player_x = -45
-            self.setup_level(self.current_level)
+        if self.player_y < -900:
+            self.player_y,self.player_x = self.checkpoint
+            self.setup_level(self.current_level, self.tile_color)
 
     def input(self):
         """Player input"""
@@ -135,38 +135,46 @@ class Level:
 
     def move(self):
         """Move and text colision with tiles"""
+        colision = True
         player = self.player.sprite
         player.rect.x += player.dir.x * player.speed
         hit_list = self.test_colision()
+        if max(self.tile_color)<6:
+            colision = False
+            if hit_list:
+                self.player_y, self.player_x = self.checkpoint
+                self.setup_level(self.current_level, self.tile_color)
 
-        for tile in hit_list:
-            if player.dir.x == 0:
-                if not player.facing_right:
+
+        if colision:
+            for tile in hit_list:
+                if player.dir.x == 0:
+                    if not player.facing_right:
+                        player.rect.left = tile.rect.right
+                        self.current_x = player.rect.left
+                        player.on_left = True
+
+                    if player.facing_right:
+                        player.rect.right = tile.rect.left
+                        self.current_x = player.rect.right
+                        player.on_right = True
+
+                elif player.dir.x < 0:
                     player.rect.left = tile.rect.right
-                    self.current_x = player.rect.left
                     player.on_left = True
+                    self.current_x = player.rect.left
 
-                if player.facing_right:
+                elif player.dir.x > 0:
                     player.rect.right = tile.rect.left
-                    self.current_x = player.rect.right
                     player.on_right = True
+                    self.current_x = player.rect.right
 
-            elif player.dir.x < 0:
-                player.rect.left = tile.rect.right
-                player.on_left = True
-                self.current_x = player.rect.left
+            if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
+                player.on_left = False
 
-            elif player.dir.x > 0:
-                player.rect.right = tile.rect.left
-                player.on_right = True
-                self.current_x = player.rect.right
-
-        if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
-            player.on_left = False
-
-        if player.on_right and (player.rect.right < self.current_x or player.dir.x <= 0):
-            player.on_right = False
-        self.get_player_on_ground()
+            if player.on_right and (player.rect.right < self.current_x or player.dir.x <= 0):
+                player.on_right = False
+            self.get_player_on_ground()
 
         # -----------------------------------
 
@@ -174,25 +182,25 @@ class Level:
         player.apply_gravity()
 
         hit_list = self.test_colision()
+        if colision:
+            for tile in hit_list:
+                if player.dir.y > 0:
+                    player.rect.bottom = tile.rect.top
+                    player.dir.y = 0
+                    player.on_ground = True
+                elif player.dir.y < 0:
+                    player.dir.y = 0
+                    player.rect.top = tile.rect.bottom
+                    player.on_ceiling = True
 
-        for tile in hit_list:
-            if player.dir.y > 0:
-                player.rect.bottom = tile.rect.top
-                player.dir.y = 0
-                player.on_ground = True
-            elif player.dir.y < 0:
-                player.dir.y = 0
-                player.rect.top = tile.rect.bottom
-                player.on_ceiling = True
-
-        if player.on_ground and player.dir.y < 0 or player.dir.y > 1:
-            player.on_ground = False
-        if player.on_ceiling and player.dir.y > 0 or player.dir.y > 1:
-            player.on_ceiling = False
+            if player.on_ground and player.dir.y < 0 or player.dir.y > 1:
+                player.on_ground = False
+            if player.on_ceiling and player.dir.y > 0 or player.dir.y > 1:
+                player.on_ceiling = False
 
     def run(self):
         """Run all functions"""
-        print(self.player_x,self.player_y)
+
         # dust
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)
