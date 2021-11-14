@@ -8,7 +8,8 @@ from particles import ParticleEffect
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-        self.checkpoint = (-110,-45)
+        self.reset_test = False
+        self.checkpoint = (0,0)
         self.lv = 0
         self.current_level = level_data[0]
         self.player_x = 0
@@ -97,8 +98,12 @@ class Level:
             self.world_shift_y = self.world_speed
             player.rect.y += self.world_speed
             self.player_y += self.world_speed
-        elif player_y > win_height - (win_height / 4) and direction_y >= 0:
+        elif player_y > win_height - (win_height / 5) and direction_y >= 0:
 
+            self.world_shift_y = player.jump_speed
+            player.rect.y += player.jump_speed
+            self.player_y += player.jump_speed
+        elif player_y > win_height - (win_height / 2) and player.look_down:
             self.world_shift_y = player.jump_speed
             player.rect.y += player.jump_speed
             self.player_y += player.jump_speed
@@ -110,19 +115,6 @@ class Level:
         if self.player_y < -900:
             self.player_y,self.player_x = self.checkpoint
             self.setup_level(self.current_level, self.tile_color)
-
-    def input(self):
-        """Player input"""
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_RIGHT]:
-            self.dir.x = 1
-            self.facing_right = True
-        elif keys[pygame.K_LEFT]:
-            self.dir.x = -1
-            self.facing_right = False
-        else:
-            self.dir.x = 0
 
     def test_colision(self):
         """Check how many colisions"""
@@ -139,7 +131,7 @@ class Level:
         player = self.player.sprite
         player.rect.x += player.dir.x * player.speed
         hit_list = self.test_colision()
-        if max(self.tile_color)<6:
+        if max(self.tile_color)<6 and self.reset_test:
             colision = False
             if hit_list:
                 self.player_y, self.player_x = self.checkpoint
@@ -200,7 +192,8 @@ class Level:
 
     def run(self):
         """Run all functions"""
-
+        print(len(self.tiles))
+        print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)

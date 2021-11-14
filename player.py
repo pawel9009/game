@@ -26,6 +26,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 8
         self.gravity = 0.8
         self.jump_speed = -16
+        self.look_down = False
 
         # player status
         self.status = 'idle'
@@ -100,6 +101,11 @@ class Player(pygame.sprite.Sprite):
             self.facing_right = False
         else:
             self.dir.x = 0
+        if keys[pygame.K_DOWN]:
+            self.look_down = True
+        else:
+            self.look_down = False
+
 
         if keys[pygame.K_SPACE]:
             if self.on_ground:
