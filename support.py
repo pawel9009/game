@@ -17,7 +17,7 @@ def import_folder(path):
 def change_dimension(map, num):
     """Change dimension on map"""
     new_level = []
-    index = num // 100
+    index = num
     print(index)
     for dimension in range(len(map[0])):
         new_level.append('')

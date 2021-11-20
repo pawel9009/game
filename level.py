@@ -8,6 +8,8 @@ from particles import ParticleEffect
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
+        self.front_dimension = True
+        self.lives = 3
         self.reset_test = False
         self.checkpoint = (0,0)
         self.lv = 0
@@ -113,6 +115,7 @@ class Level:
     def save(self):
         """ 'Checkpoint' """
         if self.player_y < -900:
+            self.lives-=1
             self.player_y,self.player_x = self.checkpoint
             self.setup_level(self.current_level, self.tile_color)
 
@@ -192,8 +195,8 @@ class Level:
 
     def run(self):
         """Run all functions"""
-        print(len(self.tiles))
-        print(self.player_x,self.player_y)
+
+        # print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)

@@ -1,4 +1,4 @@
-tile_size = 128
+tile_size = 100
 win_width = 16 * 64
 win_height = 600
 
@@ -29,6 +29,33 @@ level_map = [
      'X            X         XXX',
      'XXXXXXXXXXXXXXXXXXXXXXXXXX',
      'XXXXXXXXXXXXXXXXXXXXXXXXXX', ],
+
+    ['XXXX                      ',
+     '            X             ',
+     ' X                        ',
+     '                          ',
+     'X                         ',
+     'X XX X  XX XX  X X X  XXX ',
+     'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'XXXXXXXXXXXXXXXXXXXXxXXXXX', ],
+
+    ['XXXX                      ',
+     '            X             ',
+     ' X                        ',
+     '                          ',
+     'X                         ',
+     'X XX X  XX XX  X X X  XXX ',
+     'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'XXXXXXXXXXXXXXXXXXXXxXXXXX', ],
+
+    ['XXXX                      ',
+     '            X             ',
+     ' X                        ',
+     '                          ',
+     'X                         ',
+     'X XX X  XX XX  X X X  XXX ',
+     'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'XXXXXXXXXXXXXXXXXXXXxXXXXX', ],
 
     ['XXXX                      ',
      '            X             ',
