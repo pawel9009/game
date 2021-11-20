@@ -10,8 +10,8 @@ heart  = pygame.image.load('graphics/heart.png').convert_alpha()
 
 # main loop
 level_num = 0
-level_lenght = len(level_map)
-level = Level(level_map, win)
+level_lenght = len(level_map1)
+level = Level(level_map1, win)
 
 font = pygame.font.SysFont("Comic Sans MS", 24)
 text = font.render("Front", False, [128, 64, 255])
@@ -35,14 +35,14 @@ while run:
                 run = False
             elif event.key == pygame.K_F1 and level_num < 4:
                 level_num += 1
-                level.setup_level(level_map[level_num], 'gray')
+                level.setup_level(level_map1[level_num], 'gray')
             elif event.key == pygame.K_F2 and level_num > 0:
                 level_num -= 1
-                level.setup_level(level_map[level_num],'gray')
+                level.setup_level(level_map1[level_num],'gray')
             elif event.key == pygame.K_d:
                 liczba = (level.player_x * -1) // tile_size
                 if level.front_dimension:
-                    map = change_dimension(level_map, liczba)
+                    map = change_dimension(level_map1, liczba)
                     level.setup_level(map, (255,0,0))
                     level.front_dimension = False
                     level.tile_color_update((0,0,0))
@@ -50,7 +50,7 @@ while run:
                 else:
                     print(liczba,level_lenght,"wymiary")
                     if liczba<level_lenght:
-                        level.setup_level(level_map[liczba], 'gray')
+                        level.setup_level(level_map1[liczba], 'gray')
                         level.front_dimension = True
                         text = font.render("Front", False, [128, 64, 255])
 
