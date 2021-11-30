@@ -1,5 +1,5 @@
 import pygame
-from tiles import Tile
+from tiles import Tile,Portal
 from settings import tile_size, win_width, win_height
 from player import *
 from particles import ParticleEffect
@@ -11,22 +11,24 @@ class Level:
         self.front_dimension = True
         self.lives = 3
         self.reset_test = False
-        self.checkpoint = (0,0)
+        self.checkpoint = (0, -200)
         self.lv = 0
         self.current_level = level_data[0]
         self.player_x = 0
         self.player_y = 0
-        self.tile_color = (255,0,0)
+        self.tile_color = (255, 0, 0)
         self.player = pygame.sprite.GroupSingle(None)
         self.setup_level(self.current_level, self.tile_color)
         self.world_shift_x = 0
         self.world_shift_y = 0
         self.world_speed = 8
+
+        self.end_portal = None
         # dust
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
 
-    def tile_color_update(self,color):
+    def tile_color_update(self, color):
         self.tile_color = color
 
     def create_jump_praticles(self, pos):
@@ -56,6 +58,7 @@ class Level:
 
     def setup_level(self, layout, tile_color):
         """Create lvl"""
+        portal = pygame.image.load('graphics/nowyportal.png').convert_alpha()
         self.tiles = pygame.sprite.Group()
         player_pos = (win_width // 2, win_height // 2)
 
@@ -67,10 +70,13 @@ class Level:
                     tile = Tile((x, y), tile_size, tile_color)
                     tile.update(self.player_x + 512, self.player_y, self.tile_color)
                     self.tiles.add(tile)
+                elif cell == 'P':
+                    portal = Portal((x,y), tile_size,portal)
+                    portal.update(self.player_x + 512, self.player_y, 'gray')
+                    self.tiles.add(portal)
+
                 player = Player((player_pos), self.display_surface, self.create_jump_praticles)
                 self.player.add(player)
-
-
 
     def scroll_x(self):
         """Camera move x"""
@@ -114,9 +120,9 @@ class Level:
 
     def save(self):
         """ 'Checkpoint' """
-        if self.player_y < -900:
-            self.lives-=1
-            self.player_y,self.player_x = self.checkpoint
+        if self.player_y < -1400:
+            self.lives -= 1
+            self.player_y, self.player_x = self.checkpoint
             self.setup_level(self.current_level, self.tile_color)
 
     def test_colision(self):
@@ -124,8 +130,9 @@ class Level:
         hit_list = []
         player = self.player.sprite
         for tile in self.tiles.sprites():
-            if tile.rect.colliderect(player.rect):
-                hit_list.append(tile)
+            if tile.colide:
+                if tile.rect.colliderect(player.rect):
+                    hit_list.append(tile)
         return hit_list
 
     def move(self):
@@ -134,12 +141,11 @@ class Level:
         player = self.player.sprite
         player.rect.x += player.dir.x * player.speed
         hit_list = self.test_colision()
-        if max(self.tile_color)<6 and self.reset_test:
+        if max(self.tile_color) < 6 and self.reset_test:
             colision = False
             if hit_list:
                 self.player_y, self.player_x = self.checkpoint
                 self.setup_level(self.current_level, self.tile_color)
-
 
         if colision:
             for tile in hit_list:
@@ -173,7 +179,6 @@ class Level:
 
         # -----------------------------------
 
-
         player.apply_gravity()
 
         hit_list = self.test_colision()
@@ -202,9 +207,7 @@ class Level:
         self.dust_sprite.draw(self.display_surface)
         # level
         self.tiles.update(self.world_shift_x, self.world_shift_y, self.tile_color)
-
         self.tiles.draw(self.display_surface)
-
         # player
         self.player.update()
         self.move()
