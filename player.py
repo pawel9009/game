@@ -9,6 +9,9 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.import_character_assets()
         self.import_dust_run_particles()
+        self.walk_sound = pygame.mixer.Sound('sound/chód.mp3')
+        self.walk = False
+        self.walk_start = False
         self.frame_index = 0
         self.screen_pos = (0, 0)
         self.animation_speed = 0.15
@@ -93,14 +96,18 @@ class Player(pygame.sprite.Sprite):
     def get_input(self):
         keys = pygame.key.get_pressed()
 
+
         if keys[pygame.K_RIGHT]:
             self.dir.x = 1
             self.facing_right = True
+            self.walk = True
         elif keys[pygame.K_LEFT]:
             self.dir.x = -1
             self.facing_right = False
+            self.walk = True
         else:
             self.dir.x = 0
+            self.walk = False
         if keys[pygame.K_DOWN]:
             self.look_down = True
         else:
@@ -130,7 +137,14 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         self.dir.y = self.jump_speed
 
+    def s_walk(self):
+        if self.dir.x!=0:
+            self.walk_sound.play(1)
+
+
+
     def update(self):
+        # self.s_walk()
         self.get_input()
         self.get_status()
         self.animate()

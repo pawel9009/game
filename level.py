@@ -1,4 +1,5 @@
 import pygame
+
 from tiles import Tile,Portal
 from settings import tile_size, win_width, win_height
 from player import *
@@ -16,9 +17,10 @@ class Level:
         self.current_level = level_data[0]
         self.player_x = 0
         self.player_y = 0
+        self.img = pygame.image.load('graphics/brick.png')
         self.tile_color = (255, 0, 0)
         self.player = pygame.sprite.GroupSingle(None)
-        self.setup_level(self.current_level, self.tile_color)
+        self.setup_level(self.current_level,)
         self.world_shift_x = 0
         self.world_shift_y = 0
         self.world_speed = 8
@@ -56,28 +58,33 @@ class Level:
             fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')
             self.dust_sprite.add(fall_dust_particle)
 
-    def setup_level(self, layout, tile_color):
+    def setup_level(self, layout):
         """Create lvl"""
+        a = time.time()
         portal = pygame.image.load('graphics/nowyportal.png').convert_alpha()
         self.tiles = pygame.sprite.Group()
         player_pos = (win_width // 2, win_height // 2)
-
+        cos =0
+        for x in layout:
+            print(x)
         for index_row, row in enumerate(layout):
             for index_col, cell in enumerate(row):
-                x = tile_size * index_col
-                y = tile_size * index_row
-                if cell == 'X':
-                    tile = Tile((x, y), tile_size, tile_color)
-                    tile.update(self.player_x + 512, self.player_y, self.tile_color)
+                x,y = tile_size * index_col,tile_size * index_row
+                cos+=1
+                if cell == '':
+                    continue
+                elif cell == 'X':
+                    tile = Tile((x, y), tile_size, self.img)
+                    tile.update(self.player_x + 512, self.player_y)
                     self.tiles.add(tile)
                 elif cell == 'P':
-                    portal = Portal((x,y), tile_size,portal)
-                    portal.update(self.player_x + 512, self.player_y, 'gray')
+                    portal = Portal((x,y),portal)
+                    portal.update(self.player_x + 512, self.player_y,)
                     self.tiles.add(portal)
 
                 player = Player((player_pos), self.display_surface, self.create_jump_praticles)
                 self.player.add(player)
-
+        print('czas ',cos, time.time() - a)
     def scroll_x(self):
         """Camera move x"""
         player = self.player.sprite
@@ -123,7 +130,7 @@ class Level:
         if self.player_y < -1400:
             self.lives -= 1
             self.player_y, self.player_x = self.checkpoint
-            self.setup_level(self.current_level, self.tile_color)
+            self.setup_level(self.current_level)
 
     def test_colision(self):
         """Check how many colisions"""
@@ -141,11 +148,6 @@ class Level:
         player = self.player.sprite
         player.rect.x += player.dir.x * player.speed
         hit_list = self.test_colision()
-        if max(self.tile_color) < 6 and self.reset_test:
-            colision = False
-            if hit_list:
-                self.player_y, self.player_x = self.checkpoint
-                self.setup_level(self.current_level, self.tile_color)
 
         if colision:
             for tile in hit_list:
@@ -206,7 +208,7 @@ class Level:
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)
         # level
-        self.tiles.update(self.world_shift_x, self.world_shift_y, self.tile_color)
+        self.tiles.update(self.world_shift_x, self.world_shift_y)
         self.tiles.draw(self.display_surface)
         # player
         self.player.update()

@@ -12,6 +12,7 @@ portal = pygame.image.load('graphics/nowyportal.png').convert_alpha()
 
 sound = pygame.mixer.music.load('sound/feel.mp3')
 
+
 # pygame.mixer.music.play()
 pygame.mixer.music.set_volume(0.01)
 map = level_map1
@@ -43,40 +44,44 @@ while run:
             elif event.key == pygame.K_d:
                 liczba = (level.player_x * -1) // tile_size
                 if level.front_dimension:
+                    s = time.time()
                     copy = change_dimension(map, liczba)
-                    level.setup_level(copy, (255, 0, 0))
+
+                    level.setup_level(copy)
+                    print(time.time() - s, 'czas kopii')
                     level.front_dimension = False
                     text = font.render("Depth", False, [128, 64, 255])
                 else:
                     print(liczba, level_lenght, "wymiary")
 
-                    level.setup_level(map[liczba], 'gray')
+                    level.setup_level(map[liczba])
                     level.front_dimension = True
                     text = font.render("Front", False, [128, 64, 255])
 
-    if change_color:
-        if counting_up:
-            if zmienna < 255:
-                zmienna += 1
-            else:
-                counting_up = False
-        else:
-            if zmienna > 0:
-                zmienna -= 1
-            else:
-                counting_up = True
-                current_color += 1
-                if current_color == 3:
-                    current_color = 0
-        if current_color == 0:
-            level.tile_color_update((zmienna, 0, 0))
-        elif current_color == 1:
-            level.tile_color_update((0, zmienna, 0))
-        elif current_color == 2:
-            level.tile_color_update((0, 0, zmienna))
+    # if change_color:
+    #     if counting_up:
+    #         if zmienna < 255:
+    #             zmienna += 1
+    #         else:
+    #             counting_up = False
+    #     else:
+    #         if zmienna > 0:
+    #             zmienna -= 1
+    #         else:
+    #             counting_up = True
+    #             current_color += 1
+    #             if current_color == 3:
+    #                 current_color = 0
+    #     if current_color == 0:
+    #         level.tile_color_update((zmienna, 0, 0))
+    #     elif current_color == 1:
+    #         level.tile_color_update((0, zmienna, 0))
+    #     elif current_color == 2:
+    #         level.tile_color_update((0, 0, zmienna))
 
-    win.fill('black')
+    win.fill('gray')
     staty = time.time()
+
     level.run()
     # print(time.time() - staty)
     win.blit(text, [0, 0])

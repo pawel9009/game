@@ -3,7 +3,7 @@ import random
 tile_size = 100
 win_width = 16 * 64
 win_height = 600
-wymiary = [10, 10, 10]
+wymiary = [30, 30, 30]
 choice = ['X', ' ', ' ', ' ']
 
 
