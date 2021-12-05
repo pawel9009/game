@@ -15,7 +15,7 @@ sound = pygame.mixer.music.load('sound/feel.mp3')
 
 # pygame.mixer.music.play()
 pygame.mixer.music.set_volume(0.01)
-map = level_map1
+map = level_map
 # main loop
 level_num = 0
 level_lenght = len(map)
@@ -58,29 +58,9 @@ while run:
                     level.front_dimension = True
                     text = font.render("Front", False, [128, 64, 255])
 
-    # if change_color:
-    #     if counting_up:
-    #         if zmienna < 255:
-    #             zmienna += 1
-    #         else:
-    #             counting_up = False
-    #     else:
-    #         if zmienna > 0:
-    #             zmienna -= 1
-    #         else:
-    #             counting_up = True
-    #             current_color += 1
-    #             if current_color == 3:
-    #                 current_color = 0
-    #     if current_color == 0:
-    #         level.tile_color_update((zmienna, 0, 0))
-    #     elif current_color == 1:
-    #         level.tile_color_update((0, zmienna, 0))
-    #     elif current_color == 2:
-    #         level.tile_color_update((0, 0, zmienna))
 
-    win.fill('gray')
-    staty = time.time()
+    win.fill('white')
+    # staty = time.time()
 
     level.run()
     # print(time.time() - staty)

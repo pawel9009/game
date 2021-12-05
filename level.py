@@ -1,5 +1,4 @@
 import pygame
-
 from tiles import Tile,Portal
 from settings import tile_size, win_width, win_height
 from player import *
@@ -17,7 +16,9 @@ class Level:
         self.current_level = level_data[0]
         self.player_x = 0
         self.player_y = 0
-        self.img = pygame.image.load('graphics/brick.png')
+        self.portal_timer=0
+        self.portal_img = pygame.image.load('graphics/nowyportal.png').convert_alpha()
+        self.brick_img = pygame.image.load('graphics/brick.png')
         self.tile_color = (255, 0, 0)
         self.player = pygame.sprite.GroupSingle(None)
         self.setup_level(self.current_level,)
@@ -61,30 +62,27 @@ class Level:
     def setup_level(self, layout):
         """Create lvl"""
         a = time.time()
-        portal = pygame.image.load('graphics/nowyportal.png').convert_alpha()
+
         self.tiles = pygame.sprite.Group()
         player_pos = (win_width // 2, win_height // 2)
-        cos =0
-        for x in layout:
-            print(x)
+
         for index_row, row in enumerate(layout):
             for index_col, cell in enumerate(row):
                 x,y = tile_size * index_col,tile_size * index_row
-                cos+=1
                 if cell == '':
                     continue
                 elif cell == 'X':
-                    tile = Tile((x, y), tile_size, self.img)
+                    tile = Tile((x, y), tile_size, self.brick_img)
                     tile.update(self.player_x + 512, self.player_y)
                     self.tiles.add(tile)
                 elif cell == 'P':
-                    portal = Portal((x,y),portal)
+                    portal = Portal((x,y),self.portal_img)
                     portal.update(self.player_x + 512, self.player_y,)
                     self.tiles.add(portal)
 
-                player = Player((player_pos), self.display_surface, self.create_jump_praticles)
-                self.player.add(player)
-        print('czas ',cos, time.time() - a)
+        player = Player((player_pos), self.display_surface, self.create_jump_praticles)
+        self.player.add(player)
+        print('czas ', time.time() - a)
     def scroll_x(self):
         """Camera move x"""
         player = self.player.sprite
@@ -127,7 +125,7 @@ class Level:
 
     def save(self):
         """ 'Checkpoint' """
-        if self.player_y < -1400:
+        if self.player_y < -3300:
             self.lives -= 1
             self.player_y, self.player_x = self.checkpoint
             self.setup_level(self.current_level)
@@ -137,9 +135,8 @@ class Level:
         hit_list = []
         player = self.player.sprite
         for tile in self.tiles.sprites():
-            if tile.colide:
-                if tile.rect.colliderect(player.rect):
-                    hit_list.append(tile)
+            if tile.rect.colliderect(player.rect):
+                hit_list.append(tile)
         return hit_list
 
     def move(self):
@@ -151,33 +148,39 @@ class Level:
 
         if colision:
             for tile in hit_list:
-                if player.dir.x == 0:
-                    if not player.facing_right:
+                if tile.colide:
+                    self.portal_timer=0
+                    if player.dir.x == 0:
+                        if not player.facing_right:
+                            player.rect.left = tile.rect.right
+                            self.current_x = player.rect.left
+                            player.on_left = True
+
+                        if player.facing_right:
+                            player.rect.right = tile.rect.left
+                            self.current_x = player.rect.right
+                            player.on_right = True
+
+                    elif player.dir.x < 0:
                         player.rect.left = tile.rect.right
-                        self.current_x = player.rect.left
                         player.on_left = True
+                        self.current_x = player.rect.left
 
-                    if player.facing_right:
+                    elif player.dir.x > 0:
                         player.rect.right = tile.rect.left
-                        self.current_x = player.rect.right
                         player.on_right = True
+                        self.current_x = player.rect.right
+                else:
+                    self.portal_timer+=1
+                    if self.portal_timer>180:
+                        print('wygrales')
 
-                elif player.dir.x < 0:
-                    player.rect.left = tile.rect.right
-                    player.on_left = True
-                    self.current_x = player.rect.left
+                if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
+                    player.on_left = False
 
-                elif player.dir.x > 0:
-                    player.rect.right = tile.rect.left
-                    player.on_right = True
-                    self.current_x = player.rect.right
-
-            if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
-                player.on_left = False
-
-            if player.on_right and (player.rect.right < self.current_x or player.dir.x <= 0):
-                player.on_right = False
-            self.get_player_on_ground()
+                if player.on_right and (player.rect.right < self.current_x or player.dir.x <= 0):
+                    player.on_right = False
+                self.get_player_on_ground()
 
         # -----------------------------------
 
@@ -186,23 +189,29 @@ class Level:
         hit_list = self.test_colision()
         if colision:
             for tile in hit_list:
-                if player.dir.y > 0:
-                    player.rect.bottom = tile.rect.top
-                    player.dir.y = 0
-                    player.on_ground = True
-                elif player.dir.y < 0:
-                    player.dir.y = 0
-                    player.rect.top = tile.rect.bottom
-                    player.on_ceiling = True
+                if tile.colide:
+                    if player.dir.y > 0:
+                        player.rect.bottom = tile.rect.top
+                        player.dir.y = 0
+                        player.on_ground = True
+                    elif player.dir.y < 0:
+                        player.dir.y = 0
+                        player.rect.top = tile.rect.bottom
+                        player.on_ceiling = True
 
             if player.on_ground and player.dir.y < 0 or player.dir.y > 1:
                 player.on_ground = False
             if player.on_ceiling and player.dir.y > 0 or player.dir.y > 1:
                 player.on_ceiling = False
 
+    def next_lvl(self):
+        # print(self.player.sprite.rect.center)
+        pass
+
+
     def run(self):
         """Run all functions"""
-
+        self.next_lvl()
         # print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
