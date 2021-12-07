@@ -14,8 +14,8 @@ def import_folder(path):
     return surface_list
 
 
-def change_dimension(map, num):
-    """Change dimension on map"""
+def create_dimension(map, num):
+    """Create dimension current map"""
 
     new_level = []
     index = num
@@ -25,3 +25,22 @@ def change_dimension(map, num):
         for i, row in enumerate(dimension):
             new_level[i] = new_level[i] + row[index]
     return new_level
+
+def change_dimension(level,map, font):
+    liczba = (level.player_x * -1) // 100
+    if level.front_dimension:
+
+        copy = create_dimension(map, liczba)
+
+        level.setup_level(copy)
+        level.front_dimension = False
+        t = font.render("Depth", False, [128, 64, 255])
+    else:
+
+        level.setup_level(map[liczba])
+        level.front_dimension = True
+        t = font.render("Front", False, [128, 64, 255])
+    return level,t
+
+
+

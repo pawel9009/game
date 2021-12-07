@@ -8,6 +8,7 @@ from particles import ParticleEffect
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
+        self.next_lvl = False
         self.front_dimension = True
         self.lives = 3
         self.reset_test = False
@@ -61,7 +62,6 @@ class Level:
 
     def setup_level(self, layout):
         """Create lvl"""
-        a = time.time()
 
         self.tiles = pygame.sprite.Group()
         player_pos = (win_width // 2, win_height // 2)
@@ -82,7 +82,7 @@ class Level:
 
         player = Player((player_pos), self.display_surface, self.create_jump_praticles)
         self.player.add(player)
-        print('czas ', time.time() - a)
+
     def scroll_x(self):
         """Camera move x"""
         player = self.player.sprite
@@ -116,7 +116,7 @@ class Level:
             self.world_shift_y = player.jump_speed
             player.rect.y += player.jump_speed
             self.player_y += player.jump_speed
-        elif player_y > win_height - (win_height / 2) and player.look_down:
+        elif player_y > win_height - (win_height / 1.5) and player.look_down:
             self.world_shift_y = player.jump_speed
             player.rect.y += player.jump_speed
             self.player_y += player.jump_speed
@@ -172,15 +172,17 @@ class Level:
                         self.current_x = player.rect.right
                 else:
                     self.portal_timer+=1
-                    if self.portal_timer>180:
-                        print('wygrales')
+                    if self.portal_timer>10:
+                        self.next_lvl=True
+                        self.portal_timer=0
+
 
                 if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
                     player.on_left = False
 
                 if player.on_right and (player.rect.right < self.current_x or player.dir.x <= 0):
                     player.on_right = False
-                self.get_player_on_ground()
+            self.get_player_on_ground()
 
         # -----------------------------------
 
@@ -204,14 +206,9 @@ class Level:
             if player.on_ceiling and player.dir.y > 0 or player.dir.y > 1:
                 player.on_ceiling = False
 
-    def next_lvl(self):
-        # print(self.player.sprite.rect.center)
-        pass
-
-
     def run(self):
         """Run all functions"""
-        self.next_lvl()
+
         # print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
@@ -223,7 +220,9 @@ class Level:
         self.player.update()
         self.move()
         self.scroll_x()
+
         self.create_landing_dust()
+
         self.scroll_y()
         self.save()
         self.player.draw(self.display_surface)

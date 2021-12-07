@@ -3,49 +3,47 @@ import random
 tile_size = 100
 win_width = 16 * 64
 win_height = 600
-wymiary = [5, 5, 5]
-choice = ['X', ' ', ' ', ' ']
+
+choice = ['X', ' ', ' ', ' ',' ']
 
 
-def create(pos_x, pos_y, add_portal):
-    tab = list(range(pos_x))
+def create(size, add_portal):
+    tab = list(range(size))
     """ if must to create portal in this dimension"""
     if add_portal == 1:
-        for x in range(pos_x):
+        for x in range(size):
             line = ''
-            for a in range(pos_y):
+            for a in range(size):
                 ran = random.randint(0, 3)
                 line += choice[ran]
             tab[x] = line
-        portal_x, portal_y = (random.randint(2, wymiary[1]) % (wymiary[1] // 3) * 2, random.randint(2, wymiary[2]) - 2)
+        portal_x, portal_y = (random.randint(2, size) % (size // 3) * 2, random.randint(2, size) - 2)
         while tab[portal_x][portal_y] == 'X':
             portal_x, portal_y = (
-            random.randint(0, wymiary[1]) % (wymiary[1] // 3) * 2, random.randint(0, wymiary[2]) - 2)
+                random.randint(0, size) % (size // 3) * 2, random.randint(0, size) - 2)
         tmp = tab[portal_x]
         tmp = tmp[0:portal_y - 1] + 'P' + tmp[portal_y::]
         tab[portal_x] = tmp
     else:
-        for x in range(pos_x):
+        for x in range(size):
             line = ''
-            for a in range(pos_y):
+            for a in range(size):
                 ran = random.randint(0, 3)
                 line += choice[ran]
             tab[x] = line
     return tab
 
 
-def create_map():
+def create_map(size):
     new = []
-    add = random.randint(0, wymiary[0])
-    for x in range(wymiary[0]):
+    add = random.randint(0, size)
+    for x in range(size):
         if x == add:
-            new.append(create(wymiary[1], wymiary[2], 1))
+            new.append(create(size, 1))
         else:
-            new.append(create(wymiary[1], wymiary[2], 0))
+            new.append(create(size, 0))
     return new
 
-
-level_map1 = create_map()
 
 level_map = [
     ['                          ',
