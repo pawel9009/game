@@ -65,7 +65,7 @@ class Level:
 
         self.tiles = pygame.sprite.Group()
         player_pos = (win_width // 2, win_height // 2)
-
+        self.size = len(layout)
         for index_row, row in enumerate(layout):
             for index_col, cell in enumerate(row):
                 x,y = tile_size * index_col,tile_size * index_row
@@ -125,7 +125,7 @@ class Level:
 
     def save(self):
         """ 'Checkpoint' """
-        if self.player_y < -3300:
+        if self.player_y < -self.size*100:
             self.lives -= 1
             self.player_y, self.player_x = self.checkpoint
             self.setup_level(self.current_level)
