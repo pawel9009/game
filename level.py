@@ -172,7 +172,7 @@ class Level:
                         self.current_x = player.rect.right
                 else:
                     self.portal_timer+=1
-                    if self.portal_timer>10:
+                    if self.portal_timer>8:
                         self.next_lvl=True
                         self.portal_timer=0
 

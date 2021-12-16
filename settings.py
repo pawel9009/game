@@ -31,6 +31,8 @@ def create(size, add_portal):
                 ran = random.randint(0, 3)
                 line += choice[ran]
             tab[x] = line
+
+    tab[-1] = 'X'*size
     return tab
 
 
