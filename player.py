@@ -1,5 +1,3 @@
-import time
-
 import pygame
 from support import import_folder
 
@@ -96,7 +94,6 @@ class Player(pygame.sprite.Sprite):
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-
         if keys[pygame.K_RIGHT]:
             self.dir.x = 1
             self.facing_right = True
@@ -112,7 +109,6 @@ class Player(pygame.sprite.Sprite):
             self.look_down = True
         else:
             self.look_down = False
-
 
         if keys[pygame.K_SPACE]:
             if self.on_ground:
@@ -141,10 +137,7 @@ class Player(pygame.sprite.Sprite):
         if self.dir.x!=0:
             self.walk_sound.play(1)
 
-
-
     def update(self):
-        # self.s_walk()
         self.get_input()
         self.get_status()
         self.animate()

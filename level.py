@@ -1,28 +1,27 @@
 import pygame
-from tiles import Tile,Portal
+from tiles import Tile, Portal
 from settings import tile_size, win_width, win_height
 from player import *
 from particles import ParticleEffect
 
 
 class Level:
-    def __init__(self, level_data, surface):
+    def __init__(self, level_data, surface, lives):
         self.display_surface = surface
         self.next_lvl = False
         self.front_dimension = True
-        self.lives = 3
+        self.lives = lives
         self.reset_test = False
         self.checkpoint = (0, -200)
         self.lv = 0
         self.current_level = level_data[0]
         self.player_x = 0
         self.player_y = 0
-        self.portal_timer=0
-        self.portal_img = pygame.image.load('graphics/nowyportal.png').convert_alpha()
-        self.brick_img = pygame.image.load('graphics/brick.png')
-        self.tile_color = (255, 0, 0)
+        self.portal_timer = 0
+        self.portal_img = pygame.image.load('graphics/others/nowyportal.png').convert_alpha()
+        self.brick_img = pygame.image.load('graphics/others/brick.png')
         self.player = pygame.sprite.GroupSingle(None)
-        self.setup_level(self.current_level,)
+        self.setup_level(self.current_level, )
         self.world_shift_x = 0
         self.world_shift_y = 0
         self.world_speed = 8
@@ -31,9 +30,6 @@ class Level:
         # dust
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
-
-    def tile_color_update(self, color):
-        self.tile_color = color
 
     def create_jump_praticles(self, pos):
         if self.player.sprite.facing_right:
@@ -68,7 +64,7 @@ class Level:
         self.size = len(layout)
         for index_row, row in enumerate(layout):
             for index_col, cell in enumerate(row):
-                x,y = tile_size * index_col,tile_size * index_row
+                x, y = tile_size * index_col, tile_size * index_row
                 if cell == '':
                     continue
                 elif cell == 'X':
@@ -76,8 +72,8 @@ class Level:
                     tile.update(self.player_x + 512, self.player_y)
                     self.tiles.add(tile)
                 elif cell == 'P':
-                    portal = Portal((x,y),self.portal_img)
-                    portal.update(self.player_x + 512, self.player_y,)
+                    portal = Portal((x, y), self.portal_img)
+                    portal.update(self.player_x + 512, self.player_y, )
                     self.tiles.add(portal)
 
         player = Player((player_pos), self.display_surface, self.create_jump_praticles)
@@ -125,7 +121,7 @@ class Level:
 
     def save(self):
         """ 'Checkpoint' """
-        if self.player_y < -self.size*100:
+        if self.player_y < -self.size * 100:
             self.lives -= 1
             self.player_y, self.player_x = self.checkpoint
             self.setup_level(self.current_level)
@@ -149,7 +145,7 @@ class Level:
         if colision:
             for tile in hit_list:
                 if tile.colide:
-                    self.portal_timer=0
+                    self.portal_timer = 0
                     if player.dir.x == 0:
                         if not player.facing_right:
                             player.rect.left = tile.rect.right
@@ -171,11 +167,10 @@ class Level:
                         player.on_right = True
                         self.current_x = player.rect.right
                 else:
-                    self.portal_timer+=1
-                    if self.portal_timer>8:
-                        self.next_lvl=True
-                        self.portal_timer=0
-
+                    self.portal_timer += 1
+                    if self.portal_timer > 8:
+                        self.next_lvl = True
+                        self.portal_timer = 0
 
                 if player.on_left and (player.rect.left < self.current_x or player.dir.x >= 0):
                     player.on_left = False
@@ -208,8 +203,6 @@ class Level:
 
     def run(self):
         """Run all functions"""
-
-        # print(self.player_x,self.player_y)
         # dust
         self.dust_sprite.update(self.world_shift_x)
         self.dust_sprite.draw(self.display_surface)
@@ -220,9 +213,7 @@ class Level:
         self.player.update()
         self.move()
         self.scroll_x()
-
         self.create_landing_dust()
-
         self.scroll_y()
         self.save()
         self.player.draw(self.display_surface)
